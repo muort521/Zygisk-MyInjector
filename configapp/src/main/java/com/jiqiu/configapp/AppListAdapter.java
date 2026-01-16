@@ -77,7 +77,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     }
     
     /**
-     * 排序应用列表：已启用的应用显示在最前面
+     * 排序应用列表：已启用的应用显示在最前面，然后按安装时间排序
      */
     private void sortAppList() {
         Collections.sort(filteredAppList, new Comparator<AppInfo>() {
@@ -87,8 +87,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
                 if (app1.isEnabled() != app2.isEnabled()) {
                     return app1.isEnabled() ? -1 : 1;
                 }
-                // 然后按应用名称排序
-                return app1.getAppName().compareToIgnoreCase(app2.getAppName());
+                // 然后按安装时间排序（最近安装的在前，即降序）
+                return Long.compare(app2.getInstallTime(), app1.getInstallTime());
             }
         });
     }

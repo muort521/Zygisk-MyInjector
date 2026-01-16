@@ -429,6 +429,14 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
                     // 从配置中加载启用状态
                     app.setEnabled(configManager.isAppEnabled(packageName));
                     
+                    // 获取应用安装时间
+                    try {
+                        long installTime = pm.getPackageInfo(packageName, 0).firstInstallTime;
+                        app.setInstallTime(installTime);
+                    } catch (Exception e) {
+                        app.setInstallTime(0);
+                    }
+                    
                     apps.add(app);
                 } catch (Exception e) {
                     // 忽略无法获取信息的应用
@@ -436,7 +444,7 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
                 }
             }
             
-            // 按启用状态和应用名称排序：已启用的应用在前面
+            // 按启用状态和安装时间排序：已启用的应用在前面，最近安装的排在前面
             Collections.sort(apps, new Comparator<AppInfo>() {
                 @Override
                 public int compare(AppInfo app1, AppInfo app2) {
@@ -444,8 +452,8 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
                     if (app1.isEnabled() != app2.isEnabled()) {
                         return app1.isEnabled() ? -1 : 1;
                     }
-                    // 然后按应用名称排序
-                    return app1.getAppName().compareToIgnoreCase(app2.getAppName());
+                    // 然后按安装时间排序（最近安装的在前，即降序）
+                    return Long.compare(app2.getInstallTime(), app1.getInstallTime());
                 }
             });
             

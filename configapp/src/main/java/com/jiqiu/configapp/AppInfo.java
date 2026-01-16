@@ -11,6 +11,7 @@ public class AppInfo {
     private Drawable appIcon;      // 应用图标
     private boolean isSystemApp;   // 是否为系统应用
     private boolean isEnabled;     // 是否启用注入
+    private long installTime;      // 安装时间（毫秒）
 
     public AppInfo(String appName, String packageName, Drawable appIcon, boolean isSystemApp) {
         this.appName = appName;
@@ -18,6 +19,7 @@ public class AppInfo {
         this.appIcon = appIcon;
         this.isSystemApp = isSystemApp;
         this.isEnabled = false; // 默认不启用注入
+        this.installTime = 0;
     }
 
     // Getter 和 Setter 方法
@@ -59,6 +61,14 @@ public class AppInfo {
 
     public void setEnabled(boolean enabled) {
         isEnabled = enabled;
+    }
+
+    public long getInstallTime() {
+        return installTime;
+    }
+
+    public void setInstallTime(long installTime) {
+        this.installTime = installTime;
     }
 
     @Override
