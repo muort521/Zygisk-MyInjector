@@ -54,6 +54,7 @@ public class SettingsFragment extends Fragment {
         
         initViews(view);
         initSharedPreferences();
+        // 先加载设置，再设置监听器，避免触发动画
         loadSettings();
         setupListeners();
     }
@@ -76,10 +77,23 @@ public class SettingsFragment extends Fragment {
     private void loadSettings() {
         boolean hideSystemApps = sharedPreferences.getBoolean(KEY_HIDE_SYSTEM_APPS, false);
         
-        if (hideSystemApps) {
-            radioHideSystem.setChecked(true);
-        } else {
-            radioShowAll.setChecked(true);
+        // 检查是否需要改变状态，避免不必要的动画
+        boolean needsChange = hideSystemApps != radioHideSystem.isChecked();
+        
+        if (needsChange) {
+            // 临时禁用动画
+            radioGroupFilter.jumpDrawablesToCurrentState();
+            
+            if (hideSystemApps) {
+                radioHideSystem.setChecked(true);
+            } else {
+                radioShowAll.setChecked(true);
+            }
+            
+            // 立即跳过动画到最终状态
+            radioGroupFilter.jumpDrawablesToCurrentState();
+            radioShowAll.jumpDrawablesToCurrentState();
+            radioHideSystem.jumpDrawablesToCurrentState();
         }
         
         // Load injection delay
