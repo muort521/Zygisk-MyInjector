@@ -77,7 +77,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
     }
     
     /**
-     * 排序应用列表：已启用的应用显示在最前面，然后按安装时间排序
+     * 排序应用列表：已启用的应用显示在最前面，然后按更新时间排序
      */
     private void sortAppList() {
         Collections.sort(filteredAppList, new Comparator<AppInfo>() {
@@ -87,7 +87,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
                 if (app1.isEnabled() != app2.isEnabled()) {
                     return app1.isEnabled() ? -1 : 1;
                 }
-                // 然后按安装时间排序（最近安装的在前，即降序）
+                // 然后按更新时间排序（最近更新的在前，即降序）
                 return Long.compare(app2.getInstallTime(), app1.getInstallTime());
             }
         });
@@ -137,7 +137,31 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         }
         
         public void bind(AppInfo appInfo) {
-            appIcon.setImageDrawable(appInfo.getAppIcon());
+            // 延迟加载图标
+            if (appInfo.getAppIcon() == null && !appInfo.isIconLoaded()) {
+                // 设置默认图标
+                appIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+                appInfo.setIconLoaded(true);
+                
+                // 异步加载真实图标
+                new Thread(() -> {
+                    try {
+                        android.content.pm.PackageManager pm = itemView.getContext().getPackageManager();
+                        android.graphics.drawable.Drawable icon = pm.getApplicationIcon(appInfo.getPackageName());
+                        appInfo.setAppIcon(icon);
+                        
+                        // 在主线程更新UI
+                        itemView.post(() -> appIcon.setImageDrawable(icon));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            } else if (appInfo.getAppIcon() != null) {
+                appIcon.setImageDrawable(appInfo.getAppIcon());
+            } else {
+                appIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+            }
+            
             appName.setText(appInfo.getAppName());
             packageName.setText(appInfo.getPackageName());
             

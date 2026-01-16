@@ -419,20 +419,21 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
                     String packageName = appInfo.packageName;
                     boolean isSystemApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                     
+                    // 不在这里加载图标，留给ViewHolder延迟加载
                     AppInfo app = new AppInfo(
                         appName,
                         packageName,
-                        pm.getApplicationIcon(appInfo),
+                        null,  // 图标稍后加载
                         isSystemApp
                     );
                     
                     // 从配置中加载启用状态
                     app.setEnabled(configManager.isAppEnabled(packageName));
                     
-                    // 获取应用安装时间
+                    // 获取应用最后更新时间（而不是首次安装旴间）
                     try {
-                        long installTime = pm.getPackageInfo(packageName, 0).firstInstallTime;
-                        app.setInstallTime(installTime);
+                        long updateTime = pm.getPackageInfo(packageName, 0).lastUpdateTime;
+                        app.setInstallTime(updateTime);
                     } catch (Exception e) {
                         app.setInstallTime(0);
                     }
@@ -444,7 +445,7 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
                 }
             }
             
-            // 按启用状态和安装时间排序：已启用的应用在前面，最近安装的排在前面
+            // 按启用状态和更新时间排序：已启用的应用在前面，最近更新的排在前面
             Collections.sort(apps, new Comparator<AppInfo>() {
                 @Override
                 public int compare(AppInfo app1, AppInfo app2) {
@@ -452,7 +453,7 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
                     if (app1.isEnabled() != app2.isEnabled()) {
                         return app1.isEnabled() ? -1 : 1;
                     }
-                    // 然后按安装时间排序（最近安装的在前，即降序）
+                    // 然后按更新时间排序（最近更新的在前，即降序）
                     return Long.compare(app2.getInstallTime(), app1.getInstallTime());
                 }
             });
