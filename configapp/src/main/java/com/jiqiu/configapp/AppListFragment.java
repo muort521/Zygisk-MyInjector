@@ -265,16 +265,13 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
                 currentConfig = new ConfigManager.GadgetConfig();
             }
             
-            GadgetConfigDialog dialog = new GadgetConfigDialog(
-                getContext(),
-                "配置" + appInfo.getAppName() + "的Gadget",
-                currentConfig,
-                config -> {
-                    configManager.setAppUseGlobalGadget(appInfo.getPackageName(), false);
-                    configManager.setAppGadgetConfig(appInfo.getPackageName(), config);
-                }
-            );
-            dialog.show();
+            GadgetConfigDialog dialog = GadgetConfigDialog.newInstance(currentConfig);
+            dialog.setCustomTitle("配置" + appInfo.getAppName() + "的Gadget");
+            dialog.setOnGadgetConfigListener(config -> {
+                configManager.setAppUseGlobalGadget(appInfo.getPackageName(), false);
+                configManager.setAppGadgetConfig(appInfo.getPackageName(), config);
+            });
+            dialog.show(getParentFragmentManager(), "GadgetConfigDialog");
         });
         
         // Setup SO list

@@ -95,6 +95,10 @@ public class GadgetConfigDialog extends DialogFragment {
         this.listener = listener;
     }
     
+    public void setCustomTitle(String title) {
+        this.customTitle = title;
+    }
+    
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -165,16 +165,13 @@ public class SettingsFragment extends Fragment {
     
     private void showGlobalGadgetConfigDialog() {
         // Use existing GadgetConfigDialog
-        GadgetConfigDialog dialog = new GadgetConfigDialog(
-            getContext(),
-            "全局Gadget配置",
-            configManager.getGlobalGadgetConfig(),
-            gadgetConfig -> {
-                // Save global gadget configuration
-                configManager.setGlobalGadgetConfig(gadgetConfig);
-                updateGlobalGadgetStatus();
-            }
-        );
-        dialog.show();
+        GadgetConfigDialog dialog = GadgetConfigDialog.newInstance(configManager.getGlobalGadgetConfig());
+        dialog.setCustomTitle("全局Gadget配置");
+        dialog.setOnGadgetConfigListener(gadgetConfig -> {
+            // Save global gadget configuration
+            configManager.setGlobalGadgetConfig(gadgetConfig);
+            updateGlobalGadgetStatus();
+        });
+        dialog.show(getParentFragmentManager(), "GlobalGadgetConfigDialog");
     }
 }
