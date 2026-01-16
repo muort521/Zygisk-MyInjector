@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -68,6 +70,34 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
             }
         }
         
+        // 排序：已启用的应用在前面，然后按名称排序
+        sortAppList();
+        
+        notifyDataSetChanged();
+    }
+    
+    /**
+     * 排序应用列表：已启用的应用显示在最前面
+     */
+    private void sortAppList() {
+        Collections.sort(filteredAppList, new Comparator<AppInfo>() {
+            @Override
+            public int compare(AppInfo app1, AppInfo app2) {
+                // 首先按启用状态排序（已启用的在前）
+                if (app1.isEnabled() != app2.isEnabled()) {
+                    return app1.isEnabled() ? -1 : 1;
+                }
+                // 然后按应用名称排序
+                return app1.getAppName().compareToIgnoreCase(app2.getAppName());
+            }
+        });
+    }
+    
+    /**
+     * 重新排序并刷新列表（用于开关切换后）
+     */
+    public void refreshSort() {
+        sortAppList();
         notifyDataSetChanged();
     }
     
