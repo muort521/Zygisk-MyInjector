@@ -323,8 +323,11 @@ public class ConfigManager {
     /**
      * Reset global gadget configuration to default values
      * 重置全局 Gadget 配置为默认值
+     * 注意：此操作会重置 globalGadgetConfig、清空 perAppConfig、重置 hideInjection 和 injectionDelay，但保留 globalSoFiles
+     * Note: This resets globalGadgetConfig, clears perAppConfig, resets hideInjection and injectionDelay, but preserves globalSoFiles
      */
     public void resetGlobalGadgetConfigToDefault() {
+        // Reset global gadget config
         GadgetConfig defaultConfig = new GadgetConfig();
         defaultConfig.mode = "script";
         defaultConfig.address = "0.0.0.0";
@@ -335,7 +338,19 @@ public class ConfigManager {
         defaultConfig.gadgetName = "libgadget.so";
         
         config.globalGadgetConfig = defaultConfig;
+        
+        // Clear all per-app configurations
+        config.perAppConfig.clear();
+        
+        // Reset other global settings to defaults
+        config.hideInjection = false;
+        config.injectionDelay = 2;
+        
+        // Note: globalSoFiles is preserved
+        
         saveConfig();
+        
+        Log.i(TAG, "Configuration reset to default (globalSoFiles preserved, perAppConfig cleared)");
     }
     
     public boolean getAppUseGlobalGadget(String packageName) {
