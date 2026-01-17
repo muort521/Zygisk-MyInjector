@@ -137,21 +137,32 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         }
         
         public void bind(AppInfo appInfo) {
+            // 使用 tag 标记当前绑定的包名，防止回收的 ViewHolder 显示错误图标
+            appIcon.setTag(appInfo.getPackageName());
+            
             // 延迟加载图标
             if (appInfo.getAppIcon() == null && !appInfo.isIconLoaded()) {
                 // 设置默认图标
                 appIcon.setImageResource(android.R.drawable.sym_def_app_icon);
                 appInfo.setIconLoaded(true);
                 
+                // 保存当前包名用于后续验证
+                final String currentPackageName = appInfo.getPackageName();
+                
                 // 异步加载真实图标
                 new Thread(() -> {
                     try {
                         android.content.pm.PackageManager pm = itemView.getContext().getPackageManager();
-                        android.graphics.drawable.Drawable icon = pm.getApplicationIcon(appInfo.getPackageName());
+                        android.graphics.drawable.Drawable icon = pm.getApplicationIcon(currentPackageName);
                         appInfo.setAppIcon(icon);
                         
-                        // 在主线程更新UI
-                        itemView.post(() -> appIcon.setImageDrawable(icon));
+                        // 在主线程更新UI，但要检查 ViewHolder 是否仍然绑定到同一个应用
+                        itemView.post(() -> {
+                            // 验证 ViewHolder 是否仍然绑定到同一个包名
+                            if (currentPackageName.equals(appIcon.getTag())) {
+                                appIcon.setImageDrawable(icon);
+                            }
+                        });
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
