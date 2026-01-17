@@ -71,10 +71,37 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
         sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         hideSystemApps = sharedPreferences.getBoolean(KEY_HIDE_SYSTEM_APPS, false);
         
+        // Setup Fragment Result Listener for GadgetConfigDialog
+        setupGadgetConfigResultListener();
+        
         initViews(view);
         setupRecyclerView();
         setupSearchView();
         loadApps();
+    }
+    
+    private void setupGadgetConfigResultListener() {
+        getParentFragmentManager().setFragmentResultListener(
+            GadgetConfigDialog.REQUEST_KEY,
+            getViewLifecycleOwner(),
+            (requestKey, result) -> {
+                String packageName = result.getString("packageName");
+                if (packageName != null) {
+                    // Extract config from bundle
+                    ConfigManager.GadgetConfig config = new ConfigManager.GadgetConfig();
+                    config.mode = result.getString("mode", "script");
+                    config.address = result.getString("address", "0.0.0.0");
+                    config.port = result.getInt("port", 27042);
+                    config.onPortConflict = result.getString("onPortConflict", "fail");
+                    config.onLoad = result.getString("onLoad", "wait");
+                    config.scriptPath = result.getString("scriptPath", "/data/local/tmp/script.js");
+                    config.gadgetName = result.getString("gadgetName", "libgadget.so");
+                    
+                    configManager.setAppUseGlobalGadget(packageName, false);
+                    configManager.setAppGadgetConfig(packageName, config);
+                }
+            }
+        );
     }
     
     private void initViews(View view) {
@@ -267,10 +294,15 @@ public class AppListFragment extends Fragment implements AppListAdapter.OnAppTog
             
             GadgetConfigDialog dialog = GadgetConfigDialog.newInstance(currentConfig);
             dialog.setCustomTitle("配置" + appInfo.getAppName() + "的Gadget");
-            dialog.setOnGadgetConfigListener(config -> {
-                configManager.setAppUseGlobalGadget(appInfo.getPackageName(), false);
-                configManager.setAppGadgetConfig(appInfo.getPackageName(), config);
-            });
+            
+            // Store package name for result callback
+            Bundle args = dialog.getArguments();
+            if (args == null) {
+                args = new Bundle();
+            }
+            args.putString("packageName", appInfo.getPackageName());
+            dialog.setArguments(args);
+            
             dialog.show(getParentFragmentManager(), "GadgetConfigDialog");
         });
         
