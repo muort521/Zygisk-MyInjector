@@ -32,6 +32,7 @@ public class SettingsFragment extends Fragment {
     private EditText editInjectionDelay;
     private TextView tvGlobalGadgetStatus;
     private Button btnConfigureGlobalGadget;
+    private Button btnResetGlobalGadget;
     private ConfigManager configManager;
     
     private SharedPreferences sharedPreferences;
@@ -66,6 +67,7 @@ public class SettingsFragment extends Fragment {
         editInjectionDelay = view.findViewById(R.id.editInjectionDelay);
         tvGlobalGadgetStatus = view.findViewById(R.id.tvGlobalGadgetStatus);
         btnConfigureGlobalGadget = view.findViewById(R.id.btnConfigureGlobalGadget);
+        btnResetGlobalGadget = view.findViewById(R.id.btnResetGlobalGadget);
         
         configManager = new ConfigManager(getContext());
     }
@@ -151,6 +153,12 @@ public class SettingsFragment extends Fragment {
         // Global gadget configuration button
         btnConfigureGlobalGadget.setOnClickListener(v -> {
             showGlobalGadgetConfigDialog();
+        });
+        
+        // Reset global gadget to default button
+        btnResetGlobalGadget.setOnClickListener(v -> {
+            configManager.resetGlobalGadgetConfigToDefault();
+            updateGlobalGadgetStatus();
         });
     }
     

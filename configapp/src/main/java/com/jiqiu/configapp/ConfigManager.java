@@ -320,6 +320,24 @@ public class ConfigManager {
         saveConfig();
     }
     
+    /**
+     * Reset global gadget configuration to default values
+     * 重置全局 Gadget 配置为默认值
+     */
+    public void resetGlobalGadgetConfigToDefault() {
+        GadgetConfig defaultConfig = new GadgetConfig();
+        defaultConfig.mode = "script";
+        defaultConfig.address = "0.0.0.0";
+        defaultConfig.port = 27042;
+        defaultConfig.onPortConflict = "fail";
+        defaultConfig.onLoad = "wait";
+        defaultConfig.scriptPath = "/data/local/tmp/script.js";
+        defaultConfig.gadgetName = "libgadget.so";
+        
+        config.globalGadgetConfig = defaultConfig;
+        saveConfig();
+    }
+    
     public boolean getAppUseGlobalGadget(String packageName) {
         AppConfig appConfig = config.perAppConfig.get(packageName);
         if (appConfig == null) {
